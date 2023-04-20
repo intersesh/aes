@@ -19,7 +19,7 @@ func NewKey(bytes []byte) []Word {
 	return Words(bytes)
 }
 
-func expandKey[T Key](key T, numRounds, wordsInKey, numColumns int) []Word {
+func expandKey(key Key, numRounds, wordsInKey, numColumns int) []Word {
 	var (
 		out = make([]Word, numColumns*(numRounds+1))
 		i   int

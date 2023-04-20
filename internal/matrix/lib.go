@@ -7,19 +7,15 @@ import (
 	"unicode/utf8"
 )
 
-type Numeric interface {
-	uint | uint8 | uint16 | uint32 | uint64 |
-		int | int8 | int16 | int32 | int64
-}
-type Vector[T Numeric] []T
+type Vector []byte
 
-func (v Vector[T]) String() string {
+func (v Vector) String() string {
 	return fmt.Sprintf("| %-2x | %-2x | %-2x | %-2x |", v[0], v[1], v[2], v[3])
 }
 
-type Matrix[T Numeric] []Vector[T]
+type Matrix []Vector
 
-func (m Matrix[T]) String() string {
+func (m Matrix) String() string {
 	hr := "-------------------------\n"
 	out := "\n"
 	out += hr
@@ -31,10 +27,10 @@ func (m Matrix[T]) String() string {
 	return out
 }
 
-func (m Matrix[T]) Transpose() Matrix[T] {
-	out := make(Matrix[T], 0, len(m[0]))
+func (m Matrix) Transpose() Matrix {
+	out := make(Matrix, 0, len(m[0]))
 	for i := 0; i < len(m); i++ {
-		out = append(out, make(Vector[T], len(m)))
+		out = append(out, make(Vector, len(m)))
 		for j := 0; j < len(m[0]); j++ {
 			out[i][j] = m[j][i]
 		}
@@ -43,7 +39,7 @@ func (m Matrix[T]) Transpose() Matrix[T] {
 	return out
 }
 
-func (m Matrix[T]) SetColumn(column Vector[T], index int) {
+func (m Matrix) SetColumn(column Vector, index int) {
 	size := len(m)
 	if index > len(m[0]) {
 		panic(fmt.Sprintf("column is %d, but matrix only has %d columns", index, len(m[0])))
@@ -58,7 +54,7 @@ func (m Matrix[T]) SetColumn(column Vector[T], index int) {
 	}
 }
 
-func (m Matrix[T]) SetRow(row Vector[T], index int) {
+func (m Matrix) SetRow(row Vector, index int) {
 	size := len(m)
 	if index > size {
 		panic(fmt.Sprintf("row is %d, but matrix only has %d rows", row, size))
@@ -71,8 +67,8 @@ func (m Matrix[T]) SetRow(row Vector[T], index int) {
 	m[index] = row
 }
 
-func NewMatrix[T Numeric](slice []T, columns int) Matrix[T] {
-	out := make(Matrix[T], 0, len(slice)/columns)
+func NewMatrix(slice []byte, columns int) Matrix {
+	out := make(Matrix, 0, len(slice)/columns)
 	for i := 0; i < (len(slice) / columns); i++ {
 		out = append(out, slice[i*columns:(i*columns)+columns])
 	}
@@ -80,10 +76,10 @@ func NewMatrix[T Numeric](slice []T, columns int) Matrix[T] {
 	return out
 }
 
-func EmptyMatrix[T Numeric](columns, rows int) Matrix[T] {
-	out := make(Matrix[T], rows)
+func EmptyMatrix(columns, rows int) Matrix {
+	out := make(Matrix, rows)
 	for i := 0; i < rows; i++ {
-		out[i] = make(Vector[T], columns)
+		out[i] = make(Vector, columns)
 	}
 
 	return out
@@ -91,9 +87,9 @@ func EmptyMatrix[T Numeric](columns, rows int) Matrix[T] {
 
 // ColumnVector returns the values that correspond to the column of a Matrix
 // at the given index.
-func ColumnVector[T Numeric](m Matrix[T], index int) Vector[T] {
+func ColumnVector(m Matrix, index int) Vector {
 	columnLength := len(m)
-	v := make(Vector[T], columnLength)
+	v := make(Vector, columnLength)
 
 	for i := 0; i < columnLength; i++ {
 		v[i] = m[i][index]
@@ -103,12 +99,12 @@ func ColumnVector[T Numeric](m Matrix[T], index int) Vector[T] {
 }
 
 // RowVector is  just syntactic sugar over indexing a Matrix.
-func RowVector[T Numeric](m Matrix[T], index int) Vector[T] {
+func RowVector(m Matrix, index int) Vector {
 	return m[index]
 }
 
-func Transpose[T Numeric](m Matrix[T], size int) Matrix[T] {
-	out := make(Matrix[T], size)
+func Transpose(m Matrix, size int) Matrix {
+	out := make(Matrix, size)
 
 	for row := 0; row < size; row++ {
 		for _, column := range m {
@@ -119,13 +115,13 @@ func Transpose[T Numeric](m Matrix[T], size int) Matrix[T] {
 }
 
 // XOR repeatedly XORs the bytes of key with the bytes of message.
-func XOR[T Numeric](a, b Vector[T]) Vector[T] {
+func XOR(a, b Vector) Vector {
 	size := len(a)
 	if len(b) != size {
 		panic("XOR: vectors are not the same length")
 	}
 
-	out := make([]T, size)
+	out := make([]byte, size)
 	for i, b := range b {
 		out[i] = b ^ a[i%size]
 	}

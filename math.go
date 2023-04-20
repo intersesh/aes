@@ -31,11 +31,12 @@ func degree(a int) int {
 	return bits.Len(uint(a))
 }
 
-func DotProduct[T matrix.Numeric](a, b matrix.Vector[T]) T {
+func DotProduct(a, b matrix.Vector) byte {
 	if len(a) != len(b) {
 		panic(fmt.Sprintf("vector a has length '%d' and vector b has length of '%d'", len(a), len(b)))
 	}
-	var out T
+
+	var out byte
 	for i := 0; i < len(a); i++ {
 		out ^= Multiply(a[i], b[i])
 	}
@@ -43,11 +44,11 @@ func DotProduct[T matrix.Numeric](a, b matrix.Vector[T]) T {
 	return out
 }
 
-func Multiply[T matrix.Numeric](a, b T) T {
-	reduction := T(0) // Repeatedly matrix.XOR this with positive bits.
+func Multiply(a, b byte) byte {
+	reduction := byte(0) // Repeatedly matrix.XOR this with positive bits.
 	intermediateXtime := a
 	for i := 0; i < bits.Len(uint(b)); i++ {
-		mask := T(matrix.Exp2(i))
+		mask := byte(matrix.Exp2(i))
 		isPositive := b&mask > 0
 
 		// log.Printf("index: %d, mask: %b (%d), isPositive? %t, round: %d intermediate: %x", i, mask, mask, isPositive, i, intermediateXtime)
@@ -60,19 +61,18 @@ func Multiply[T matrix.Numeric](a, b T) T {
 	return reduction
 }
 
-func Xtime[T matrix.Numeric](a T) T {
+func Xtime(a byte) byte {
 	mask := 0b10000000
-	maskT := T(mask)
+	maskT := byte(mask)
 	is7Set := a&maskT > 0
 
-	a = a << 1
+	temp := uint16(a << 1)
 
 	if is7Set {
-		a ^= poly
+		temp ^= poly
 	}
 
-	outputMask := 0b11111111
-	outputMaskT := T(outputMask)
+	outputMask := byte(0b11111111)
 
-	return a & outputMaskT
+	return byte(temp) & outputMask
 }

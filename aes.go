@@ -57,9 +57,9 @@ func (w Word) String() string {
 }
 
 // Vector returns a Word as a four-byte Vector.
-func (w Word) Vector() matrix.Vector[byte] {
+func (w Word) Vector() matrix.Vector {
 	mask := byte(0xff)
-	return matrix.Vector[byte]{
+	return matrix.Vector{
 		byte(w >> 24),
 		byte(w>>16) & mask,
 		byte(w>>8) & mask,
@@ -132,8 +132,8 @@ func Words(bytes []byte) []Word {
 	return key
 }
 
-func parse(block Block) matrix.Matrix[byte] {
-	out := matrix.EmptyMatrix[byte](4, 4)
+func parse(block Block) matrix.Matrix {
+	out := matrix.EmptyMatrix(4, 4)
 	for r := 0; r < 4; r++ {
 		for c := 0; c < 4; c++ {
 			out[r][c] = block[r+(4*c)]
@@ -143,9 +143,9 @@ func parse(block Block) matrix.Matrix[byte] {
 	return out
 }
 
-func addRoundKey(state matrix.Matrix[byte], schedule []Word, round int) matrix.Matrix[byte] {
+func addRoundKey(state matrix.Matrix, schedule []Word, round int) matrix.Matrix {
 	numColumns := 4
-	out := matrix.EmptyMatrix[byte](4, 4)
+	out := matrix.EmptyMatrix(4, 4)
 
 	for i := 0; i < numColumns; i++ {
 		stateColumn := matrix.ColumnVector(state, i)
@@ -157,8 +157,8 @@ func addRoundKey(state matrix.Matrix[byte], schedule []Word, round int) matrix.M
 	return out
 }
 
-func subBytes(state matrix.Matrix[byte]) matrix.Matrix[byte] {
-	out := matrix.EmptyMatrix[byte](4, 4)
+func subBytes(state matrix.Matrix) matrix.Matrix {
+	out := matrix.EmptyMatrix(4, 4)
 
 	for row := range state {
 		for col := range state[row] {
@@ -169,8 +169,8 @@ func subBytes(state matrix.Matrix[byte]) matrix.Matrix[byte] {
 	return out
 }
 
-func subBytesInverse(state matrix.Matrix[byte]) matrix.Matrix[byte] {
-	out := matrix.EmptyMatrix[byte](4, 4)
+func subBytesInverse(state matrix.Matrix) matrix.Matrix {
+	out := matrix.EmptyMatrix(4, 4)
 
 	for row := range state {
 		for col := range state[row] {
@@ -180,26 +180,26 @@ func subBytesInverse(state matrix.Matrix[byte]) matrix.Matrix[byte] {
 	return out
 }
 
-func shiftRows(state matrix.Matrix[byte]) matrix.Matrix[byte] {
-	out := matrix.EmptyMatrix[byte](4, 4)
+func shiftRows(state matrix.Matrix) matrix.Matrix {
+	out := matrix.EmptyMatrix(4, 4)
 	for i := 0; i < 4; i++ {
-		out[i] = append(append(matrix.Vector[byte]{}, state[i][i:]...), state[i][:i]...)
+		out[i] = append(append(matrix.Vector{}, state[i][i:]...), state[i][:i]...)
 	}
 
 	return out
 }
 
-func shiftRowsInverse(state matrix.Matrix[byte]) matrix.Matrix[byte] {
-	out := matrix.EmptyMatrix[byte](4, 4)
+func shiftRowsInverse(state matrix.Matrix) matrix.Matrix {
+	out := matrix.EmptyMatrix(4, 4)
 	for i := 0; i < 4; i++ {
 		pivot := 4 - i
-		out[i] = append(append(matrix.Vector[byte]{}, state[i][pivot:]...), state[i][:pivot]...)
+		out[i] = append(append(matrix.Vector{}, state[i][pivot:]...), state[i][:pivot]...)
 	}
 	return out
 }
 
-func mixColumns[T matrix.Numeric](state, polynomials matrix.Matrix[T]) matrix.Matrix[T] {
-	out := matrix.EmptyMatrix[T](4, 4)
+func mixColumns(state, polynomials matrix.Matrix) matrix.Matrix {
+	out := matrix.EmptyMatrix(4, 4)
 	for row := 0; row < len(state); row++ {
 		for col := 0; col < len(state[row]); col++ {
 			out[row][col] = DotProduct(matrix.RowVector(polynomials, row), matrix.ColumnVector(state, col))
@@ -230,7 +230,7 @@ func SubstituteWord(w Word) Word {
 	return out
 }
 
-func matrixBlock(m matrix.Matrix[byte]) Block {
+func matrixBlock(m matrix.Matrix) Block {
 	var out Block
 	for row := range m {
 		for col := range m[row] {
