@@ -17,7 +17,6 @@ const (
 // Depending on key size, will perform a different number of rounds during
 // encryption and decryption.
 type Cipher struct {
-	key       Key
 	schedule  []Word
 	numRounds int
 }
@@ -33,7 +32,6 @@ func NewCipher(key Key) Cipher {
 	numRounds := 6 + wordsInKey
 
 	return Cipher{
-		key:       key,
 		schedule:  expandKey(key, numRounds, wordsInKey, numColumns),
 		numRounds: numRounds,
 	}
@@ -44,33 +42,34 @@ func NewCipher(key Key) Cipher {
 // and returns 128 bits of encrypted output (and vice-versa during decryption).
 type Block [16]byte
 
+// String does what it says on the tin.
 func (b Block) String() string {
 	return string(b[:])
 }
 
 // Word is an array of 4 bytes represented as a single uint32.
-type Word uint32
+type Word = uint32
 
-// String returns a Word as four hex numbers.
-func (w Word) String() string {
-	return fmt.Sprintf("%x %x %x %x", w.Byte(0), w.Byte(1), w.Byte(2), w.Byte(3))
-}
-
-// Vector returns a Word as a four-byte Vector.
-func (w Word) Vector() matrix.Vector {
-	mask := byte(0xff)
-	return matrix.Vector{
-		byte(w >> 24),
-		byte(w>>16) & mask,
-		byte(w>>8) & mask,
-		byte(w) & mask,
+// NewWord converts a byte slice of length 4 to a 32-bit Word.
+func NewWord(bytes []byte) Word {
+	if l := len(bytes); l != 4 {
+		panic(fmt.Sprintf("aes.NewWord: byte slice length must be of length 4; received %d; ", l))
 	}
+
+	return uint32(bytes[0])<<24 | uint32(bytes[1])<<16 | uint32(bytes[2])<<8 | uint32(bytes[3])
 }
 
-// Byte returns a single byte from a Word.
-func (w Word) Byte(i int) byte {
-	shift := 32 - 8*(i+1)
-	return uint8(w >> shift & 0b1111_1111)
+// Words returns a slice of 32-bit words from a given byte slice.
+// Panics if the byte slice is not a multiple of 4.
+func Words(bytes []byte) []Word {
+	l := len(bytes)
+
+	out := make([]Word, l/4)
+	for i := 0; i < len(bytes)/4; i++ {
+		out[i] = NewWord(bytes[i*4 : i*4+4])
+	}
+
+	return out
 }
 
 // Encrypt implements the AES flavour of the Rijndael algo.
@@ -119,19 +118,6 @@ func (c Cipher) Decrypt(block Block) Block {
 	return matrixBlock(state)
 }
 
-func Words(bytes []byte) []Word {
-	l := len(bytes)
-
-	key := make([]Word, l/4)
-
-	for i := 0; i < len(bytes)/4; i++ {
-		word := Word(uint32(bytes[4*i])<<24 | uint32(bytes[4*i+1])<<16 | uint32(bytes[4*i+2])<<8 | uint32(bytes[4*i+3]))
-		key[i] = word
-	}
-
-	return key
-}
-
 func parse(block Block) matrix.Matrix {
 	out := matrix.EmptyMatrix(4, 4)
 	for r := 0; r < 4; r++ {
@@ -149,7 +135,7 @@ func addRoundKey(state matrix.Matrix, schedule []Word, round int) matrix.Matrix 
 
 	for i := 0; i < numColumns; i++ {
 		stateColumn := matrix.ColumnVector(state, i)
-		wordVector := schedule[round*numColumns+i].Vector()
+		wordVector := matrix.NewVector(schedule[round*numColumns+i])
 		result := matrix.XOR(stateColumn, wordVector)
 		out.SetColumn(result, i)
 	}

@@ -25,13 +25,13 @@ func expandKey(key Key, numRounds, wordsInKey, numColumns int) []Word {
 		i   int
 	)
 
+	// The first n words in the schedule are just the first n words of the key.
 	for ; i < wordsInKey; i++ {
 		out[i] = key[i]
 	}
 
-	var word Word
 	for i = wordsInKey; i < numColumns*(numRounds+1); i++ {
-		word = out[i-1]
+		word := out[i-1]
 		if i%wordsInKey == 0 {
 			word = SubstituteWord(RotateWord(word)) ^ Rcon(i/wordsInKey-1)
 		} else if numColumns > 6 && i%numColumns == 4 {
