@@ -13,6 +13,17 @@ func (v Vector) String() string {
 	return fmt.Sprintf("| %-2x | %-2x | %-2x | %-2x |", v[0], v[1], v[2], v[3])
 }
 
+// NewVector splits an unsigned 32-bit integer into a 4-byte Vector.
+func NewVector(n uint32) Vector {
+	mask := byte(0xff)
+	return Vector{
+		byte(n >> 24),
+		byte(n>>16) & mask,
+		byte(n>>8) & mask,
+		byte(n) & mask,
+	}
+}
+
 type Matrix []Vector
 
 func (m Matrix) String() string {
