@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/bits"
 
-	"github.com/ny0m/aes/internal/matrix"
+	"github.com/ny0m/aes/matrix"
 )
 
 // Mod returns the remainder of the given arguments using division for the
@@ -48,10 +48,9 @@ func Multiply(a, b byte) byte {
 	reduction := byte(0) // Repeatedly matrix.XOR this with positive bits.
 	intermediateXtime := a
 	for i := 0; i < bits.Len(uint(b)); i++ {
-		mask := byte(matrix.Exp2(i))
+		mask := byte(Exp2(i))
 		isPositive := b&mask > 0
 
-		// log.Printf("index: %d, mask: %b (%d), isPositive? %t, round: %d intermediate: %x", i, mask, mask, isPositive, i, intermediateXtime)
 		if isPositive {
 			reduction ^= intermediateXtime
 		}
@@ -75,4 +74,8 @@ func Xtime(a byte) byte {
 	outputMask := byte(0b11111111)
 
 	return byte(temp) & outputMask
+}
+
+func Exp2(i int) int {
+	return 1 << i
 }

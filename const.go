@@ -1,6 +1,6 @@
 package aes
 
-import "github.com/ny0m/aes/internal/matrix"
+import "github.com/ny0m/aes/matrix"
 
 var (
 	// These matrices contain the coefficients for the 4th-degree polynomials

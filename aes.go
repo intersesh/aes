@@ -3,7 +3,7 @@ package aes
 import (
 	"fmt"
 
-	"github.com/ny0m/aes/internal/matrix"
+	"github.com/ny0m/aes/matrix"
 )
 
 const (
@@ -39,7 +39,7 @@ func NewCipher(key Key) Cipher {
 
 // Block is just a byte array.
 // AES is a 128-bit symmetric block cipher, which means that it takes 128 bits as input,
-// and returns 128 bits of encrypted output (and vice-versa during decryption).
+// and returns 128 bits output, irrespective of key size.
 type Block [16]byte
 
 // String does what it says on the tin.
@@ -118,15 +118,12 @@ func (c Cipher) Decrypt(block Block) Block {
 	return matrixBlock(state)
 }
 
+// parse is just syntactic sugar to keep our Encrypt and Decrypt functions readable.
+// We transpose the initial state matrix because the AES paper describes the state
+// in a column-first fashion
+// See FIPS-197 Section 3.4.
 func parse(block Block) matrix.Matrix {
-	out := matrix.EmptyMatrix(4, 4)
-	for r := 0; r < 4; r++ {
-		for c := 0; c < 4; c++ {
-			out[r][c] = block[r+(4*c)]
-		}
-	}
-
-	return out
+	return matrix.NewMatrix(block[:], 4).Transpose()
 }
 
 func addRoundKey(state matrix.Matrix, schedule []Word, round int) matrix.Matrix {
@@ -240,7 +237,7 @@ func RotateWord(w Word) Word {
 // The result is shifted three bytes to the left, since these constants are
 // always of the form x³.
 func Rcon(round int) Word {
-	return Word(Mod(matrix.Exp2(round), poly)) << 24
+	return Word(Mod(Exp2(round), poly)) << 24
 }
 
 // poly is the irreducible polynomial for GF(2⁸),
