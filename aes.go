@@ -42,9 +42,9 @@ func NewCipher(key Key) Cipher {
 // and returns 128 bits output, irrespective of key size.
 type Block [16]byte
 
-// String does what it says on the tin.
+// String returns a hexadecimal representation of each byte in the block.
 func (b Block) String() string {
-	return string(b[:])
+	return fmt.Sprintf("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15])
 }
 
 // Word is an array of 4 bytes represented as a single uint32.
@@ -198,7 +198,7 @@ func mixColumns(state, polynomials matrix.Matrix) matrix.Matrix {
 	return out
 }
 
-// SubstituteWord applies the substitution algorith from FIPS-197 Section 5.2.
+// SubstituteWord applies the substitution algorithm from FIPS-197 Section 5.2.
 func SubstituteWord(w Word) Word {
 	var out Word
 

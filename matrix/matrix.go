@@ -22,7 +22,7 @@ type Vector []byte
 
 // String returns a padded hexadecimal representation of a Vector.
 func (v Vector) String() string {
-	return fmt.Sprintf("| %-2x | %-2x | %-2x | %-2x |", v[0], v[1], v[2], v[3])
+	return fmt.Sprintf("| %02x | %02x | %02x | %02x |", v[0], v[1], v[2], v[3])
 }
 
 // Matrix is a nice way to represent the state and other table-like data
@@ -50,12 +50,12 @@ func EmptyMatrix(columns, rows int) Matrix {
 	return out
 }
 
-// String returns a padded hexadecimal representation of a Matrix
+// String returns a padded hexadecimal representation of a Matrix.
 func (m Matrix) String() string {
 	hr := "-------------------------\n"
 	out := "\n" + hr
 	for _, row := range m {
-		out += fmt.Sprintf("| %-2x | %-2x | %-2x | %-2x |\n", row[0], row[1], row[2], row[3])
+		out += fmt.Sprintf("| %02x | %02x | %02x | %02x |\n", row[0], row[1], row[2], row[3])
 	}
 	out += hr
 
