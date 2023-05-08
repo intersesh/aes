@@ -17,7 +17,7 @@ func Example() {
 	c := aes.NewCipher(key)
 
 	// Create a 128-bit block from a message that we'd like to send.
-	block := aes.Block([]byte("a secret message"))
+	block := aes.NewBlock([]byte("a secret message"))
 
 	// Finally, use the cipher to encrypt the block.
 	out := c.Encrypt(block)
