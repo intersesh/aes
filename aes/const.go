@@ -1,6 +1,6 @@
 package aes
 
-import "github.com/ny0m/aes/matrix"
+import "github.com/intersesh/crypto/matrix"
 
 var (
 	// These matrices contain the coefficients for the 4th-degree polynomials

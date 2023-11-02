@@ -1,6 +1,6 @@
 # AES
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/ny0m/aes.svg)](https://pkg.go.dev/github.com/ny0m/aes)
+[![Go Reference](https://pkg.go.dev/badge/github.com/intersesh/crypto.svg)](https://pkg.go.dev/github.com/intersesh/crypto)
 
 This repo contains an implementation of the Rijndael encryption algorithm
 as described in the [NIST FIPS 197 AES paper](https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf).

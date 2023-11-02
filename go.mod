@@ -1,4 +1,4 @@
-module github.com/ny0m/aes
+module github.com/intersesh/crypto
 
 go 1.20
 
