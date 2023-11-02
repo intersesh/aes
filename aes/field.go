@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/bits"
 
-	"github.com/ny0m/aes/matrix"
+	"github.com/intersesh/crypto/matrix"
 )
 
 // Mod returns the remainder of the given arguments using division for the

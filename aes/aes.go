@@ -3,7 +3,8 @@ package aes
 import (
 	"fmt"
 
-	"github.com/ny0m/aes/matrix"
+	"github.com/intersesh/crypto/blockcipher"
+	"github.com/intersesh/crypto/matrix"
 )
 
 const (
@@ -37,32 +38,6 @@ func NewCipher(key Key) Cipher {
 	}
 }
 
-// Block is just a byte array.
-// AES is a 128-bit symmetric block cipher, which means that it takes 128 bits as input,
-// and returns 128 bits output, irrespective of key size.
-type Block [16]byte
-
-// NewBlock returns a block that contains the given bytes,
-// padded if len(bytes) < 16.
-func NewBlock(bytes []byte) Block {
-	if len(bytes) > 16 {
-		panic("blocks cannot be larger than 16 bytes")
-	}
-
-	var block Block
-
-	for i := 0; i < len(bytes); i++ {
-		block[i] = bytes[i]
-	}
-
-	return block
-}
-
-// String returns a hexadecimal representation of each byte in the block.
-func (b Block) String() string {
-	return fmt.Sprintf("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15])
-}
-
 // Word is an array of 4 bytes represented as a single uint32.
 type Word uint32
 
@@ -94,7 +69,7 @@ func Words(bytes []byte) []Word {
 
 // Encrypt implements the AES flavour of the Rijndael algo.
 // See FIPS-197 Section 5.1.
-func (c Cipher) Encrypt(block Block) Block {
+func (c Cipher) Encrypt(block blockcipher.Block) blockcipher.Block {
 	state := parse(block)
 
 	// The zeroth round only consists of adding the round key.
@@ -121,7 +96,7 @@ func (c Cipher) Encrypt(block Block) Block {
 // It's effectively the inverse of the Encrypt function;
 // the steps are applied in reverse order.
 // See FIPS-197 Section 5.3.
-func (c Cipher) Decrypt(block Block) Block {
+func (c Cipher) Decrypt(block blockcipher.Block) blockcipher.Block {
 	state := parse(block)
 
 	state = addRoundKey(state, c.schedule, c.numRounds)
@@ -142,7 +117,7 @@ func (c Cipher) Decrypt(block Block) Block {
 // We transpose the initial state matrix because the AES paper describes the state
 // in a column-first fashion
 // See FIPS-197 Section 3.4.
-func parse(block Block) matrix.Matrix {
+func parse(block blockcipher.Block) matrix.Matrix {
 	return matrix.NewMatrix(block[:], 4).Transpose()
 }
 
@@ -233,8 +208,8 @@ func SubstituteWord(w Word) Word {
 	return out
 }
 
-func matrixBlock(m matrix.Matrix) Block {
-	var out Block
+func matrixBlock(m matrix.Matrix) blockcipher.Block {
+	var out blockcipher.Block
 	for row := range m {
 		for col := range m[row] {
 			index := (row * 4) + col

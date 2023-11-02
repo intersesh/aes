@@ -3,7 +3,8 @@ package aes_test
 import (
 	"log"
 
-	"github.com/ny0m/aes"
+	"github.com/intersesh/crypto/aes"
+	"github.com/intersesh/crypto/blockcipher"
 )
 
 func Example() {
@@ -17,7 +18,7 @@ func Example() {
 	c := aes.NewCipher(key)
 
 	// Create a 128-bit block from a message that we'd like to send.
-	block := aes.NewBlock([]byte("a secret message"))
+	block := blockcipher.NewBlock([]byte("a secret message"))
 
 	// Finally, use the cipher to encrypt the block.
 	out := c.Encrypt(block)

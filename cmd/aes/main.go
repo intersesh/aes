@@ -6,7 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/ny0m/aes"
+	"github.com/intersesh/crypto/aes"
+	"github.com/intersesh/crypto/blockcipher"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 		key    = aes.NewKey([]byte(keyStr))
 		cipher = aes.NewCipher(key)
 
-		op func(block aes.Block) aes.Block
+		op func(block blockcipher.Block) blockcipher.Block
 	)
 
 	switch a := flag.Arg(0); {
@@ -44,7 +45,7 @@ func main() {
 
 		// Since AES is a block cipher,
 		// we have to always process one exact block worth of bytes at a time.
-		block := aes.Block(in[i:j])
+		block := blockcipher.Block(in[i:j])
 
 		b := op(block)
 		if _, err := os.Stdout.Write(b[:]); err != nil {
