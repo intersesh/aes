@@ -76,3 +76,16 @@ func TestKeyExpansion128(t *testing.T) {
 		assert.Equal(t, NewWord(keyExpansionTestCases[i][:]), k)
 	}
 }
+
+func TestModes(t *testing.T) {
+	key := NewKey([]byte("ABSENTMINDEDNESS"))
+	c := NewCipher(key)
+	for _, m := range []blockcipher.Mode{
+		blockcipher.NewECBMode(c),
+		blockcipher.NewCBCMode(c, blockcipher.NewBlock(blockcipher.RandomBytes(16))),
+		blockcipher.NewCTRMode(c),
+	} {
+		message := []byte("a secret message")
+		assert.Equal(t, m.Decrypt(m.Encrypt(message)), message)
+	}
+}
