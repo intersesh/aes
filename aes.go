@@ -64,7 +64,11 @@ func (b Block) String() string {
 }
 
 // Word is an array of 4 bytes represented as a single uint32.
-type Word = uint32
+type Word uint32
+
+func (w Word) String() string {
+	return matrix.NewVector(uint32(w)).String()
+}
 
 // NewWord converts a byte slice of length 4 to a 32-bit Word.
 func NewWord(bytes []byte) Word {
@@ -72,7 +76,7 @@ func NewWord(bytes []byte) Word {
 		panic(fmt.Sprintf("aes.NewWord: byte slice length must be of length 4; received %d; ", l))
 	}
 
-	return uint32(bytes[0])<<24 | uint32(bytes[1])<<16 | uint32(bytes[2])<<8 | uint32(bytes[3])
+	return Word(uint32(bytes[0])<<24 | uint32(bytes[1])<<16 | uint32(bytes[2])<<8 | uint32(bytes[3]))
 }
 
 // Words returns a slice of 32-bit words from a given byte slice.
@@ -148,7 +152,7 @@ func addRoundKey(state matrix.Matrix, schedule []Word, round int) matrix.Matrix 
 
 	for i := 0; i < numColumns; i++ {
 		stateColumn := matrix.ColumnVector(state, i)
-		wordVector := matrix.NewVector(schedule[round*numColumns+i])
+		wordVector := matrix.NewVector(uint32(schedule[round*numColumns+i]))
 		result := matrix.XOR(stateColumn, wordVector)
 		out.SetColumn(result, i)
 	}
